@@ -5,6 +5,8 @@
   "seed": 0,
   "torch_threads": 4,
   "prompt": {
+    "file": "ref_prompt.u16",
+    "sha256": "9f596f72c66d49ee58c9b68f09f6167eba7bbdf565cba09ba4b38b6578d17b05",
     "source": "wikitext2_test.u16[64:128]",
     "tokens": [
       5878,
@@ -343,7 +345,7 @@
       3.8834529813317142,
       3.5480065070755438
     ],
-    "seconds": 177.8
+    "seconds": 140.2
   },
   "versions": {
     "python": "3.11.3",

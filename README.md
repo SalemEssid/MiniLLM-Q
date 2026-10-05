@@ -1,8 +1,8 @@
 # MiniLLM-Q
 
-A GPT-2 small inference engine in C++, used to test whether sensitivity-guided mixed-precision quantization
-turns saved bits into decode speed on a laptop CPU. The plan, phases and gates are in
-[the guide](<document/MiniLLM-Q guide.tex>).
+A GPT-2 small inference engine in C++, used to measure when a mixed-precision allocation turns into decode
+speed on a laptop CPU, with two kernel families (unpack-dequantize and bit-plane) and llama.cpp as an
+external baseline. The plan, phases and gates are in [the guide](<document/MiniLLM-Q guide.tex>).
 
 ## Setup (Windows)
 
@@ -21,6 +21,21 @@ turns saved bits into decode speed on a laptop CPU. The plan, phases and gates a
 Each script writes a JSON file next to its outputs with shapes, SHA-256 checksums and package versions.
 Nothing in Phase 0 is random; the seed is fixed at 0 anyway. The binaries are not tracked: run the three
 scripts to recreate them (about 5 minutes plus the GPT-2 and WikiText-2 downloads).
+
+## Phase 1: FP32 C++ engine
+
+```
+cmake -S cpp -B cpp/build -G Ninja
+cmake --build cpp/build
+cpp\build\phase1_check.exe       # gates (a)-(d) against the Phase 0 references; writes results/phase1.json
+```
+
+- `cpp/src/gpt2.{h,cpp}`: loader, forward pass, KV cache. `forward_sequence(tokens)` and `decode_step(token)`
+  share one code path, so a decode step is bit-identical to the same position in a sequence.
+- `cpp/src/kernels.{h,cpp}`: `linear`, `layernorm`, `gelu`, `softmax`, `add`.
+- Layout choice: the file keeps Conv1D `[in, out]`, and the loader transposes each block weight to
+  `[out, in]` so every output of a linear layer is one contiguous dot product, as for the head on `wte` and
+  the column-wise layout of the Phase 3 quantized kernels.
 
 ## File formats
 
@@ -57,6 +72,7 @@ Final perplexities use test; calibration slices come from train.
 - **Prompt:** test tokens [64, 128). This is the first 64-token window whose 100-step greedy run has every
   top-1 minus top-2 logit margin ≥ 0.01. The window at offset 0 has a near-tie of 0.0011, where a correct
   engine could pick the other token.
+- **`ref_prompt.u16`:** the 64 prompt tokens.
 - **`ref_logits.f32`:** [64, 50257] float32. Row `p` holds the logits after `prompt[0..p]`: row 0 after the
   first token, row 63 after the whole prompt.
 - **`ref_greedy.u16`:** the 100 greedy tokens after the prompt (argmax at every step, no stop at EOS). The
