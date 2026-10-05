@@ -1,0 +1,7 @@
+# Python side of MiniLLM-Q (Python 3.11). On Windows, PyPI torch wheels are CPU-only.
+# Install: python -m venv .venv && .venv\Scripts\python -m pip install -r requirements.txt
+torch==2.14.1
+transformers==5.18.0
+datasets==5.1.0
+numpy==2.4.6
+matplotlib==3.11.2

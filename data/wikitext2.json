@@ -1,0 +1,29 @@
+{
+  "dataset": "Salesforce/wikitext",
+  "config": "wikitext-2-raw-v1",
+  "join": "\n\n",
+  "tokenizer": "openai-community/gpt2",
+  "dtype": "uint16, little-endian",
+  "splits": {
+    "test": {
+      "file": "wikitext2_test.u16",
+      "rows": 4358,
+      "tokens": 287644,
+      "sha256": "8e0d202f1ce14bb5d290878b7228fe95a85d8578c44b1756cd733f7b959fd9b7"
+    },
+    "train": {
+      "file": "wikitext2_train.u16",
+      "rows": 36718,
+      "tokens": 2428601,
+      "sha256": "107891162028d12988b4c1b05d705f9efd596b74297acbe8d923185d33a2f554"
+    }
+  },
+  "versions": {
+    "python": "3.11.3",
+    "torch": "2.14.1+cpu",
+    "transformers": "5.18.0",
+    "tokenizers": "0.23.2",
+    "datasets": "5.1.0",
+    "numpy": "2.4.6"
+  }
+}
