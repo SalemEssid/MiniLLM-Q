@@ -37,6 +37,58 @@ cpp\build\phase1_check.exe       # gates (a)-(d) against the Phase 0 references;
   `[out, in]` so every output of a linear layer is one contiguous dot product, as for the head on `wte` and
   the column-wise layout of the Phase 3 quantized kernels.
 
+## Phase 2: bandwidth, roofline, fast FP32 decode
+
+```
+cpp\build\bandwidth.exe [MB]          # read bandwidth at 1, 2, 4, 8 threads (default 256 MB)
+cpp\build\phase2_bench.exe            # decode protocol + roofline; writes results/phase2.json
+cpp\build\phase1_check.exe --quick    # gates (a)-(c) in seconds, after every kernel change
+```
+
+`phase2_bench` follows the guide's protocol: 64-token prompt, 256 decode steps, 1 warm-up and 5 timed runs
+per thread count. It records the CPU, the power source, the free RAM and every run's speed. Run it on mains
+power for the gate.
+
+**Gate result** (mains power, `results/phase2.json`): bandwidth 34.8 GB/s, ceiling 68.4 tokens/s.
+8 threads reach 54.4 ± 2.9 tokens/s, 80% of the ceiling, and 2 or more threads all exceed 70%. The gate asked
+for 50–70%. The sweep fixes **8 threads** for all later speed runs.
+
+What it took to reach the bandwidth limit:
+
+- **AVX2 dot product with four accumulators** (`kernels.h`). The compiler's `omp simd` reduction kept one
+  accumulator, so every FMA waited for the previous one. Alone, the matrix-vector product now streams at
+  the full measured bandwidth (16.9 GB/s on 1 thread, 31.4 GB/s on 4).
+- **A thread pool instead of OpenMP** (`threads.h`). With MinGW's libgomp on Windows, entering a parallel
+  region costs 40–140 µs, and a decode step enters about 100 of them. Spinning workers start in about 1 µs.
+- **Power-throttling opt-out in the benchmarks** (`tools/bench_env.h`). Windows 11 runs background
+  processes at efficient clocks, especially on battery. Opting out and raising the priority removed most of
+  the run-to-run spread.
+- Timing uses `std::chrono::steady_clock`, because `omp_get_wtime()` has 1 ms resolution with MinGW.
+
+Decode still uses the same `dot` as `forward_sequence`, so gate (c) stays bit-identical.
+
+## Phase 3: quantized kernels, two families
+
+```
+.venv\Scripts\python python\export_quantized.py      # data/gpt2_q{2,3,4,6,8}.bin (+ gpt2_qbits.json)
+.venv\Scripts\python python\make_quant_reference.py  # data/qref/ (gate a), data/quant_reference.json (gate b)
+cpp\build\phase3_check.exe [--skip-ppl] [--ppl-widths 8,4]   # gates (a), (b); results/phase3.json
+cpp\build\phase3_bench.exe [--decode]                         # gate (c); results/phase3_bench.json
+```
+
+- **Format** (`python/quant.py`, `cpp/src/quant.h`): asymmetric, groups of 128 inputs, FP16 scale and
+  minimum per group and output column. Python quantizes; C++ only repacks the exported codes.
+- **Family U** (unpack-dequantize): codes are split into byte-aligned fields (3 = 2 + 1 and 6 = 4 + 2 bits,
+  as in llama.cpp's Q3_K and Q6_K). One 16-byte load, a shift and a mask give one field of 16 codes; then
+  convert to float and FMA, with AVX-512.
+- **Family P** (bit-plane): each bit of the codes is a plane. Every 4 inputs get a 16-entry FP32 table of
+  partial sums, built once per product, and `_mm512_permutexvar_ps` looks up 16 output columns at once.
+  There are no multiplications inside a group, and the same kernel serves every width.
+- `qmatvec_reference` decodes every code from the packed layout and sums in double. It checks the packing
+  against Python, and the AVX-512 kernels against it.
+- An allocation is a `Quantization`: 48 widths (0 = FP32), the head at FP32 or 8 bits, and a family. The
+  FP32 weights of quantized layers are never loaded.
+
 ## File formats
 
 All files are little-endian and have no compression.

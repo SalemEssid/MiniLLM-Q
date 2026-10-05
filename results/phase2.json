@@ -1,0 +1,20 @@
+{
+  "cpu": "11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz",
+  "logical_cpus": 8,
+  "on_mains_power": true,
+  "free_ram_gb": 0.27356,
+  "power_throttling_disabled": true,
+  "high_priority": true,
+  "protocol": {"prompt_tokens": 64, "decode_steps": 256, "warmup_runs": 1, "timed_runs": 5},
+  "bandwidth_gbs": {"1": 21.9111, "2": 24.8113, "4": 33.9744, "8": 34.8061},
+  "bytes_per_token": 5.08812e+08,
+  "roofline_tokens_per_s": 68.4067,
+  "decode": [
+    {"threads": 1, "tokens_per_s": 33.0656, "std": 2.00536, "fraction_of_roofline": 0.483368, "linear_share": 0.924213, "attention_share": 0.0481804},
+    {"threads": 2, "tokens_per_s": 50.4661, "std": 2.43808, "fraction_of_roofline": 0.737737, "linear_share": 0.915556, "attention_share": 0.0498285},
+    {"threads": 4, "tokens_per_s": 49.1003, "std": 7.08413, "fraction_of_roofline": 0.717771, "linear_share": 0.918081, "attention_share": 0.0496378},
+    {"threads": 8, "tokens_per_s": 54.4159, "std": 2.85297, "fraction_of_roofline": 0.795476, "linear_share": 0.906244, "attention_share": 0.052838}
+  ],
+  "best_threads": 8,
+  "best_fraction_of_roofline": 0.795476
+}

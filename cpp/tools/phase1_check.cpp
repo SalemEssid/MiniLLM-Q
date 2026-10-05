@@ -3,52 +3,11 @@
 //   (b) the 100 greedy tokens after the prompt are identical
 //   (c) decode_step with the cache gives the same logits as forward_sequence at every position
 //   (d) perplexity on the first 32K WikiText-2 test tokens matches Python to 0.1%
-// Usage: phase1_check [project root]. Writes results/phase1.json.
-#include <omp.h>
-
-#include <algorithm>
-#include <chrono>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <filesystem>
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-#include "gpt2.h"
-
-namespace fs = std::filesystem;
+// Usage: phase1_check [project root] [--quick]. Writes results/phase1.json.
+// --quick runs (a)-(c) only, in seconds, for use while optimizing; it writes no JSON.
+#include "tool_util.h"
 
 namespace {
-
-template <class T>
-std::vector<T> read_array(const fs::path& path) {
-  std::ifstream f(path, std::ios::binary | std::ios::ate);
-  if (!f) throw std::runtime_error("cannot open " + path.string());
-  std::vector<T> v((std::size_t)f.tellg() / sizeof(T));
-  f.seekg(0);
-  f.read(reinterpret_cast<char*>(v.data()), v.size() * sizeof(T));
-  return v;
-}
-
-std::vector<int> read_tokens(const fs::path& path) {
-  auto u16 = read_array<uint16_t>(path);
-  return {u16.begin(), u16.end()};
-}
-
-// The number after "key": in a JSON file. Enough for the flat numeric fields of reference.json.
-double json_number(const fs::path& path, const std::string& key) {
-  std::ifstream f(path);
-  std::stringstream ss;
-  ss << f.rdbuf();
-  const std::string text = ss.str(), pat = "\"" + key + "\":";
-  const auto at = text.find(pat);
-  if (at == std::string::npos) throw std::runtime_error(key + " not found in " + path.string());
-  return std::stod(text.substr(at + pat.size()));
-}
 
 int argmax(const float* x, int n) { return (int)(std::max_element(x, x + n) - x); }
 
@@ -64,24 +23,15 @@ double cosine(const float* a, const float* b, int n) {
   return ab / std::sqrt(aa * bb);
 }
 
-// -log softmax(x)[target], in double.
-double nll(const float* x, int n, int target) {
-  const double mx = *std::max_element(x, x + n);
-  double sum = 0;
-  for (int i = 0; i < n; ++i) sum += std::exp(x[i] - mx);
-  return mx + std::log(sum) - x[target];
-}
-
-double seconds_since(std::chrono::steady_clock::time_point t0) {
-  return std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
-}
-
-const char* verdict(bool ok) { return ok ? "PASS" : "FAIL"; }
-
 }  // namespace
 
 int main(int argc, char** argv) try {
-  const fs::path root = argc > 1 ? fs::path(argv[1]) : fs::path(MINILLM_ROOT);
+  fs::path root = MINILLM_ROOT;
+  bool quick = false;
+  for (int i = 1; i < argc; ++i) {
+    if (std::string(argv[i]) == "--quick") quick = true;
+    else root = argv[i];
+  }
   const fs::path data = root / "data";
 
   auto t0 = std::chrono::steady_clock::now();
@@ -95,7 +45,7 @@ int main(int argc, char** argv) try {
   const double ref_ppl = json_number(data / "reference.json", "ppl");
   const int P = (int)prompt.size(), G = (int)ref_greedy.size();
   if (ref_logits.size() != (std::size_t)P * V) throw std::runtime_error("ref_logits.f32 has the wrong size");
-  std::printf("loaded model in %.1f s, %d OpenMP threads\n", load_s, omp_get_max_threads());
+  std::printf("loaded model in %.1f s, %d threads\n", load_s, num_threads());
 
   // (a) Logits at every prompt position.
   std::vector<float> logits((std::size_t)P * V);
@@ -127,7 +77,7 @@ int main(int argc, char** argv) try {
   for (int i = 0; i < G && first_diff < 0; ++i)
     if (greedy[i] != ref_greedy[i]) first_diff = i;
   const bool pass_b = first_diff < 0;
-  std::printf("(b) %s  greedy: %s (unoptimized decode: %.1f tokens/s)\n", verdict(pass_b),
+  std::printf("(b) %s  greedy: %s (decode: %.1f tokens/s)\n", verdict(pass_b),
               pass_b ? "all 100 tokens identical" : ("first difference at step " + std::to_string(first_diff)).c_str(),
               decode_tps);
 
@@ -146,28 +96,19 @@ int main(int argc, char** argv) try {
   const bool pass_c = worst_cache < 1e-5;
   std::printf("(c) %s  cache: max |decode_step - forward_sequence| over %d positions = %.2e\n", verdict(pass_c), S,
               worst_cache);
+  if (quick) {
+    std::printf("quick check (a)-(c): %s\n", pass_a && pass_b && pass_c ? "PASS" : "FAIL");
+    return pass_a && pass_b && pass_c ? 0 : 1;
+  }
 
   // (d) Perplexity: 32 non-overlapping windows of 1024; each scores its 1023 next-token predictions.
-  const int W = 1024, n_windows = 32;
-  std::vector<float> window_logits((std::size_t)W * V);
+  const int n_windows = 32;
   std::vector<double> window_nll;
   t0 = std::chrono::steady_clock::now();
-  for (int w = 0; w < n_windows; ++w) {
-    const int* tok = &test[(std::size_t)w * W];
-    model.forward_sequence(tok, W, window_logits.data());
-    double sum = 0;
-#pragma omp parallel for reduction(+ : sum) schedule(static)
-    for (int t = 0; t < W - 1; ++t) sum += nll(&window_logits[(std::size_t)t * V], V, tok[t + 1]);
-    window_nll.push_back(sum / (W - 1));
-    std::printf("\r    window %2d/%d  %.1f s", w + 1, n_windows, seconds_since(t0));
-    std::fflush(stdout);
-  }
-  const double ppl_s = seconds_since(t0);
-  double mean_nll = 0;
-  for (double x : window_nll) mean_nll += x / n_windows;
-  const double ppl = std::exp(mean_nll), rel = std::fabs(ppl - ref_ppl) / ref_ppl;
+  const double ppl = perplexity(model, test, 1024, n_windows, window_nll);
+  const double ppl_s = seconds_since(t0), rel = std::fabs(ppl - ref_ppl) / ref_ppl;
   const bool pass_d = rel < 1e-3;
-  std::printf("\r(d) %s  perplexity %.4f vs %.4f in Python (relative difference %.2e), %.0f s\n", verdict(pass_d),
+  std::printf("(d) %s  perplexity %.4f vs %.4f in Python (relative difference %.2e), %.0f s\n", verdict(pass_d),
               ppl, ref_ppl, rel, ppl_s);
 
   const bool pass = pass_a && pass_b && pass_c && pass_d;
@@ -178,7 +119,7 @@ int main(int argc, char** argv) try {
   js.precision(10);
   js << std::boolalpha << "{\n"
      << "  \"pass\": " << pass << ",\n"
-     << "  \"threads\": " << omp_get_max_threads() << ",\n"
+     << "  \"threads\": " << num_threads() << ",\n"
      << "  \"a_logits\": {\"pass\": " << pass_a << ", \"min_cosine\": " << worst_cos
      << ", \"max_abs_error\": " << worst_abs << ", \"worst_position\": " << worst_abs_pos << "},\n"
      << "  \"b_greedy\": {\"pass\": " << pass_b << ", \"first_difference\": " << first_diff

@@ -14,14 +14,12 @@ import time
 
 import numpy as np
 import torch
-import torch.nn.functional as F
 
-from common import DATA, MODEL_ID, VOCAB, load_model, load_tokenizer, sha256, versions, write_json
+from common import DATA, MODEL_ID, VOCAB, load_model, load_tokenizer, sha256, versions, window_nll, write_json
 
 PROMPT_LEN, N_GREEDY = 64, 100
 MIN_MARGIN = 0.01
 PPL_TOKENS, WINDOW = 32 * 1024, 1024  # non-overlapping windows: stride = window
-CHUNK = 256                           # head applied 256 positions at a time to keep memory low
 SEED = 0
 
 
@@ -61,13 +59,8 @@ def main():
         "cached and uncached greedy decoding disagree"
 
     # Perplexity: each window predicts its tokens 1..1023 from the tokens before them in the same window.
-    windows = torch.from_numpy(test[:PPL_TOKENS]).view(-1, WINDOW)
-    nll, t0 = [], time.perf_counter()
-    for w in windows:
-        h = m.transformer(w[None]).last_hidden_state[0, :-1]
-        total = sum(F.cross_entropy(m.lm_head(h[i:i + CHUNK]), w[1 + i:1 + i + CHUNK], reduction="sum").item()
-                    for i in range(0, WINDOW - 1, CHUNK))
-        nll.append(total / (WINDOW - 1))
+    t0 = time.perf_counter()
+    nll = window_nll(m, torch.from_numpy(test[:PPL_TOKENS]), WINDOW)
     seconds = time.perf_counter() - t0
     ppl = math.exp(sum(nll) / len(nll))
 

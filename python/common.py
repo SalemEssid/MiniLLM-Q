@@ -82,6 +82,23 @@ def load_tokenizer():
     return GPT2TokenizerFast.from_pretrained(MODEL_ID)
 
 
+def window_nll(model, tokens, window=N_CTX, chunk=256):
+    """Mean next-token NLL of each non-overlapping window of tokens (a 1-D int64 tensor whose length is a
+    multiple of window). Each window predicts its tokens 1..window-1 from the tokens before them in the same
+    window. The head is applied chunk positions at a time to keep memory low."""
+    import torch
+    import torch.nn.functional as F
+
+    out = []
+    with torch.inference_mode():
+        for w in tokens.view(-1, window):
+            h = model.transformer(w[None]).last_hidden_state[0, :-1]
+            total = sum(F.cross_entropy(model.lm_head(h[i:i + chunk]), w[1 + i:1 + i + chunk], reduction="sum").item()
+                        for i in range(0, window - 1, chunk))
+            out.append(total / (window - 1))
+    return out
+
+
 def sha256(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:

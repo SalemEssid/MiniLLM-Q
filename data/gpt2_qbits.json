@@ -1,0 +1,1979 @@
+{
+  "magic": 20261006,
+  "G": 128,
+  "header_bytes": 64,
+  "tensor_layout": "codes uint8 [in, out], scales float16 [in/G, out], mins float16 [in/G, out]",
+  "files": {
+    "2": {
+      "file": "gpt2_q2.bin",
+      "bytes": 87588928,
+      "sha256": "6d5682b28152e2255245eb3532d1b47ebf408b20903ee43db6e76caaf3b731a0",
+      "tensors": [
+        {
+          "name": "transformer.h.0.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 64
+        },
+        {
+          "name": "transformer.h.0.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 1824832
+        },
+        {
+          "name": "transformer.h.0.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 2433088
+        },
+        {
+          "name": "transformer.h.0.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 4866112
+        },
+        {
+          "name": "transformer.h.1.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 7299136
+        },
+        {
+          "name": "transformer.h.1.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 9123904
+        },
+        {
+          "name": "transformer.h.1.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 9732160
+        },
+        {
+          "name": "transformer.h.1.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 12165184
+        },
+        {
+          "name": "transformer.h.2.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 14598208
+        },
+        {
+          "name": "transformer.h.2.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 16422976
+        },
+        {
+          "name": "transformer.h.2.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 17031232
+        },
+        {
+          "name": "transformer.h.2.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 19464256
+        },
+        {
+          "name": "transformer.h.3.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 21897280
+        },
+        {
+          "name": "transformer.h.3.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 23722048
+        },
+        {
+          "name": "transformer.h.3.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 24330304
+        },
+        {
+          "name": "transformer.h.3.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 26763328
+        },
+        {
+          "name": "transformer.h.4.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 29196352
+        },
+        {
+          "name": "transformer.h.4.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 31021120
+        },
+        {
+          "name": "transformer.h.4.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 31629376
+        },
+        {
+          "name": "transformer.h.4.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 34062400
+        },
+        {
+          "name": "transformer.h.5.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 36495424
+        },
+        {
+          "name": "transformer.h.5.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 38320192
+        },
+        {
+          "name": "transformer.h.5.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 38928448
+        },
+        {
+          "name": "transformer.h.5.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 41361472
+        },
+        {
+          "name": "transformer.h.6.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 43794496
+        },
+        {
+          "name": "transformer.h.6.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 45619264
+        },
+        {
+          "name": "transformer.h.6.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 46227520
+        },
+        {
+          "name": "transformer.h.6.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 48660544
+        },
+        {
+          "name": "transformer.h.7.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 51093568
+        },
+        {
+          "name": "transformer.h.7.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 52918336
+        },
+        {
+          "name": "transformer.h.7.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 53526592
+        },
+        {
+          "name": "transformer.h.7.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 55959616
+        },
+        {
+          "name": "transformer.h.8.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 58392640
+        },
+        {
+          "name": "transformer.h.8.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 60217408
+        },
+        {
+          "name": "transformer.h.8.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 60825664
+        },
+        {
+          "name": "transformer.h.8.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 63258688
+        },
+        {
+          "name": "transformer.h.9.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 65691712
+        },
+        {
+          "name": "transformer.h.9.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 67516480
+        },
+        {
+          "name": "transformer.h.9.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 68124736
+        },
+        {
+          "name": "transformer.h.9.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 70557760
+        },
+        {
+          "name": "transformer.h.10.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 72990784
+        },
+        {
+          "name": "transformer.h.10.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 74815552
+        },
+        {
+          "name": "transformer.h.10.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 75423808
+        },
+        {
+          "name": "transformer.h.10.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 77856832
+        },
+        {
+          "name": "transformer.h.11.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 80289856
+        },
+        {
+          "name": "transformer.h.11.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 82114624
+        },
+        {
+          "name": "transformer.h.11.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 82722880
+        },
+        {
+          "name": "transformer.h.11.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 85155904
+        }
+      ]
+    },
+    "3": {
+      "file": "gpt2_q3.bin",
+      "bytes": 87588928,
+      "sha256": "69f3c24df047bf37842a4e9214431b3a08e49de71d396b6dd5db3c1fc0dfd763",
+      "tensors": [
+        {
+          "name": "transformer.h.0.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 64
+        },
+        {
+          "name": "transformer.h.0.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 1824832
+        },
+        {
+          "name": "transformer.h.0.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 2433088
+        },
+        {
+          "name": "transformer.h.0.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 4866112
+        },
+        {
+          "name": "transformer.h.1.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 7299136
+        },
+        {
+          "name": "transformer.h.1.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 9123904
+        },
+        {
+          "name": "transformer.h.1.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 9732160
+        },
+        {
+          "name": "transformer.h.1.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 12165184
+        },
+        {
+          "name": "transformer.h.2.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 14598208
+        },
+        {
+          "name": "transformer.h.2.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 16422976
+        },
+        {
+          "name": "transformer.h.2.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 17031232
+        },
+        {
+          "name": "transformer.h.2.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 19464256
+        },
+        {
+          "name": "transformer.h.3.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 21897280
+        },
+        {
+          "name": "transformer.h.3.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 23722048
+        },
+        {
+          "name": "transformer.h.3.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 24330304
+        },
+        {
+          "name": "transformer.h.3.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 26763328
+        },
+        {
+          "name": "transformer.h.4.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 29196352
+        },
+        {
+          "name": "transformer.h.4.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 31021120
+        },
+        {
+          "name": "transformer.h.4.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 31629376
+        },
+        {
+          "name": "transformer.h.4.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 34062400
+        },
+        {
+          "name": "transformer.h.5.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 36495424
+        },
+        {
+          "name": "transformer.h.5.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 38320192
+        },
+        {
+          "name": "transformer.h.5.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 38928448
+        },
+        {
+          "name": "transformer.h.5.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 41361472
+        },
+        {
+          "name": "transformer.h.6.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 43794496
+        },
+        {
+          "name": "transformer.h.6.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 45619264
+        },
+        {
+          "name": "transformer.h.6.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 46227520
+        },
+        {
+          "name": "transformer.h.6.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 48660544
+        },
+        {
+          "name": "transformer.h.7.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 51093568
+        },
+        {
+          "name": "transformer.h.7.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 52918336
+        },
+        {
+          "name": "transformer.h.7.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 53526592
+        },
+        {
+          "name": "transformer.h.7.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 55959616
+        },
+        {
+          "name": "transformer.h.8.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 58392640
+        },
+        {
+          "name": "transformer.h.8.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 60217408
+        },
+        {
+          "name": "transformer.h.8.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 60825664
+        },
+        {
+          "name": "transformer.h.8.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 63258688
+        },
+        {
+          "name": "transformer.h.9.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 65691712
+        },
+        {
+          "name": "transformer.h.9.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 67516480
+        },
+        {
+          "name": "transformer.h.9.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 68124736
+        },
+        {
+          "name": "transformer.h.9.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 70557760
+        },
+        {
+          "name": "transformer.h.10.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 72990784
+        },
+        {
+          "name": "transformer.h.10.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 74815552
+        },
+        {
+          "name": "transformer.h.10.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 75423808
+        },
+        {
+          "name": "transformer.h.10.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 77856832
+        },
+        {
+          "name": "transformer.h.11.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 80289856
+        },
+        {
+          "name": "transformer.h.11.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 82114624
+        },
+        {
+          "name": "transformer.h.11.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 82722880
+        },
+        {
+          "name": "transformer.h.11.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 85155904
+        }
+      ]
+    },
+    "4": {
+      "file": "gpt2_q4.bin",
+      "bytes": 87588928,
+      "sha256": "22f2f063d020c730c3dcca6361cf5a72ae7bb47d40d954eac74daaf50374a304",
+      "tensors": [
+        {
+          "name": "transformer.h.0.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 64
+        },
+        {
+          "name": "transformer.h.0.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 1824832
+        },
+        {
+          "name": "transformer.h.0.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 2433088
+        },
+        {
+          "name": "transformer.h.0.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 4866112
+        },
+        {
+          "name": "transformer.h.1.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 7299136
+        },
+        {
+          "name": "transformer.h.1.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 9123904
+        },
+        {
+          "name": "transformer.h.1.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 9732160
+        },
+        {
+          "name": "transformer.h.1.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 12165184
+        },
+        {
+          "name": "transformer.h.2.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 14598208
+        },
+        {
+          "name": "transformer.h.2.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 16422976
+        },
+        {
+          "name": "transformer.h.2.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 17031232
+        },
+        {
+          "name": "transformer.h.2.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 19464256
+        },
+        {
+          "name": "transformer.h.3.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 21897280
+        },
+        {
+          "name": "transformer.h.3.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 23722048
+        },
+        {
+          "name": "transformer.h.3.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 24330304
+        },
+        {
+          "name": "transformer.h.3.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 26763328
+        },
+        {
+          "name": "transformer.h.4.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 29196352
+        },
+        {
+          "name": "transformer.h.4.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 31021120
+        },
+        {
+          "name": "transformer.h.4.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 31629376
+        },
+        {
+          "name": "transformer.h.4.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 34062400
+        },
+        {
+          "name": "transformer.h.5.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 36495424
+        },
+        {
+          "name": "transformer.h.5.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 38320192
+        },
+        {
+          "name": "transformer.h.5.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 38928448
+        },
+        {
+          "name": "transformer.h.5.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 41361472
+        },
+        {
+          "name": "transformer.h.6.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 43794496
+        },
+        {
+          "name": "transformer.h.6.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 45619264
+        },
+        {
+          "name": "transformer.h.6.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 46227520
+        },
+        {
+          "name": "transformer.h.6.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 48660544
+        },
+        {
+          "name": "transformer.h.7.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 51093568
+        },
+        {
+          "name": "transformer.h.7.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 52918336
+        },
+        {
+          "name": "transformer.h.7.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 53526592
+        },
+        {
+          "name": "transformer.h.7.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 55959616
+        },
+        {
+          "name": "transformer.h.8.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 58392640
+        },
+        {
+          "name": "transformer.h.8.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 60217408
+        },
+        {
+          "name": "transformer.h.8.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 60825664
+        },
+        {
+          "name": "transformer.h.8.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 63258688
+        },
+        {
+          "name": "transformer.h.9.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 65691712
+        },
+        {
+          "name": "transformer.h.9.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 67516480
+        },
+        {
+          "name": "transformer.h.9.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 68124736
+        },
+        {
+          "name": "transformer.h.9.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 70557760
+        },
+        {
+          "name": "transformer.h.10.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 72990784
+        },
+        {
+          "name": "transformer.h.10.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 74815552
+        },
+        {
+          "name": "transformer.h.10.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 75423808
+        },
+        {
+          "name": "transformer.h.10.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 77856832
+        },
+        {
+          "name": "transformer.h.11.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 80289856
+        },
+        {
+          "name": "transformer.h.11.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 82114624
+        },
+        {
+          "name": "transformer.h.11.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 82722880
+        },
+        {
+          "name": "transformer.h.11.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 85155904
+        }
+      ]
+    },
+    "6": {
+      "file": "gpt2_q6.bin",
+      "bytes": 87588928,
+      "sha256": "f972b42d3bb1fb3e67e0807d4ff997e30e4aae4a0aea140e87e17a646eecb91f",
+      "tensors": [
+        {
+          "name": "transformer.h.0.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 64
+        },
+        {
+          "name": "transformer.h.0.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 1824832
+        },
+        {
+          "name": "transformer.h.0.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 2433088
+        },
+        {
+          "name": "transformer.h.0.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 4866112
+        },
+        {
+          "name": "transformer.h.1.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 7299136
+        },
+        {
+          "name": "transformer.h.1.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 9123904
+        },
+        {
+          "name": "transformer.h.1.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 9732160
+        },
+        {
+          "name": "transformer.h.1.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 12165184
+        },
+        {
+          "name": "transformer.h.2.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 14598208
+        },
+        {
+          "name": "transformer.h.2.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 16422976
+        },
+        {
+          "name": "transformer.h.2.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 17031232
+        },
+        {
+          "name": "transformer.h.2.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 19464256
+        },
+        {
+          "name": "transformer.h.3.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 21897280
+        },
+        {
+          "name": "transformer.h.3.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 23722048
+        },
+        {
+          "name": "transformer.h.3.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 24330304
+        },
+        {
+          "name": "transformer.h.3.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 26763328
+        },
+        {
+          "name": "transformer.h.4.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 29196352
+        },
+        {
+          "name": "transformer.h.4.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 31021120
+        },
+        {
+          "name": "transformer.h.4.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 31629376
+        },
+        {
+          "name": "transformer.h.4.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 34062400
+        },
+        {
+          "name": "transformer.h.5.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 36495424
+        },
+        {
+          "name": "transformer.h.5.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 38320192
+        },
+        {
+          "name": "transformer.h.5.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 38928448
+        },
+        {
+          "name": "transformer.h.5.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 41361472
+        },
+        {
+          "name": "transformer.h.6.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 43794496
+        },
+        {
+          "name": "transformer.h.6.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 45619264
+        },
+        {
+          "name": "transformer.h.6.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 46227520
+        },
+        {
+          "name": "transformer.h.6.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 48660544
+        },
+        {
+          "name": "transformer.h.7.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 51093568
+        },
+        {
+          "name": "transformer.h.7.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 52918336
+        },
+        {
+          "name": "transformer.h.7.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 53526592
+        },
+        {
+          "name": "transformer.h.7.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 55959616
+        },
+        {
+          "name": "transformer.h.8.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 58392640
+        },
+        {
+          "name": "transformer.h.8.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 60217408
+        },
+        {
+          "name": "transformer.h.8.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 60825664
+        },
+        {
+          "name": "transformer.h.8.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 63258688
+        },
+        {
+          "name": "transformer.h.9.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 65691712
+        },
+        {
+          "name": "transformer.h.9.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 67516480
+        },
+        {
+          "name": "transformer.h.9.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 68124736
+        },
+        {
+          "name": "transformer.h.9.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 70557760
+        },
+        {
+          "name": "transformer.h.10.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 72990784
+        },
+        {
+          "name": "transformer.h.10.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 74815552
+        },
+        {
+          "name": "transformer.h.10.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 75423808
+        },
+        {
+          "name": "transformer.h.10.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 77856832
+        },
+        {
+          "name": "transformer.h.11.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 80289856
+        },
+        {
+          "name": "transformer.h.11.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 82114624
+        },
+        {
+          "name": "transformer.h.11.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 82722880
+        },
+        {
+          "name": "transformer.h.11.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 85155904
+        }
+      ]
+    },
+    "8": {
+      "file": "gpt2_q8.bin",
+      "bytes": 127392472,
+      "sha256": "967de06b7e61382bc4c10a97a847299f3370b694b7e41fabe1935eb4f91f25f7",
+      "tensors": [
+        {
+          "name": "transformer.h.0.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 64
+        },
+        {
+          "name": "transformer.h.0.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 1824832
+        },
+        {
+          "name": "transformer.h.0.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 2433088
+        },
+        {
+          "name": "transformer.h.0.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 4866112
+        },
+        {
+          "name": "transformer.h.1.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 7299136
+        },
+        {
+          "name": "transformer.h.1.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 9123904
+        },
+        {
+          "name": "transformer.h.1.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 9732160
+        },
+        {
+          "name": "transformer.h.1.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 12165184
+        },
+        {
+          "name": "transformer.h.2.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 14598208
+        },
+        {
+          "name": "transformer.h.2.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 16422976
+        },
+        {
+          "name": "transformer.h.2.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 17031232
+        },
+        {
+          "name": "transformer.h.2.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 19464256
+        },
+        {
+          "name": "transformer.h.3.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 21897280
+        },
+        {
+          "name": "transformer.h.3.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 23722048
+        },
+        {
+          "name": "transformer.h.3.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 24330304
+        },
+        {
+          "name": "transformer.h.3.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 26763328
+        },
+        {
+          "name": "transformer.h.4.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 29196352
+        },
+        {
+          "name": "transformer.h.4.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 31021120
+        },
+        {
+          "name": "transformer.h.4.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 31629376
+        },
+        {
+          "name": "transformer.h.4.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 34062400
+        },
+        {
+          "name": "transformer.h.5.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 36495424
+        },
+        {
+          "name": "transformer.h.5.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 38320192
+        },
+        {
+          "name": "transformer.h.5.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 38928448
+        },
+        {
+          "name": "transformer.h.5.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 41361472
+        },
+        {
+          "name": "transformer.h.6.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 43794496
+        },
+        {
+          "name": "transformer.h.6.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 45619264
+        },
+        {
+          "name": "transformer.h.6.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 46227520
+        },
+        {
+          "name": "transformer.h.6.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 48660544
+        },
+        {
+          "name": "transformer.h.7.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 51093568
+        },
+        {
+          "name": "transformer.h.7.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 52918336
+        },
+        {
+          "name": "transformer.h.7.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 53526592
+        },
+        {
+          "name": "transformer.h.7.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 55959616
+        },
+        {
+          "name": "transformer.h.8.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 58392640
+        },
+        {
+          "name": "transformer.h.8.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 60217408
+        },
+        {
+          "name": "transformer.h.8.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 60825664
+        },
+        {
+          "name": "transformer.h.8.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 63258688
+        },
+        {
+          "name": "transformer.h.9.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 65691712
+        },
+        {
+          "name": "transformer.h.9.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 67516480
+        },
+        {
+          "name": "transformer.h.9.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 68124736
+        },
+        {
+          "name": "transformer.h.9.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 70557760
+        },
+        {
+          "name": "transformer.h.10.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 72990784
+        },
+        {
+          "name": "transformer.h.10.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 74815552
+        },
+        {
+          "name": "transformer.h.10.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 75423808
+        },
+        {
+          "name": "transformer.h.10.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 77856832
+        },
+        {
+          "name": "transformer.h.11.attn.c_attn",
+          "shape": [
+            768,
+            2304
+          ],
+          "offset": 80289856
+        },
+        {
+          "name": "transformer.h.11.attn.c_proj",
+          "shape": [
+            768,
+            768
+          ],
+          "offset": 82114624
+        },
+        {
+          "name": "transformer.h.11.mlp.c_fc",
+          "shape": [
+            768,
+            3072
+          ],
+          "offset": 82722880
+        },
+        {
+          "name": "transformer.h.11.mlp.c_proj",
+          "shape": [
+            3072,
+            768
+          ],
+          "offset": 85155904
+        },
+        {
+          "name": "head (wte^T)",
+          "shape": [
+            768,
+            50257
+          ],
+          "offset": 87588928
+        }
+      ]
+    }
+  },
+  "versions": {
+    "python": "3.11.3",
+    "torch": "2.14.1+cpu",
+    "transformers": "5.18.0",
+    "tokenizers": "0.23.2",
+    "datasets": "5.1.0",
+    "numpy": "2.4.6"
+  }
+}
