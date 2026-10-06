@@ -16,7 +16,8 @@ Machine: Intel i5-1135G7 (4 cores, AVX-512), 8 GB RAM, Windows 11.
 | 2 | Bandwidth and FP32 decode speed | Done: 54.4 tokens/s, 80% of the bandwidth ceiling |
 | 3 | Quantized kernels, two families | Done: matches Python within 7e-6 |
 | 4 | Sensitivity and interaction scans | Scans done; written discussion still to do |
-| 5–7 | Allocation, search, experiments | Not started |
+| 5 | Closed-form allocation | Allocations scored; derivations and BAQ comparison still to do |
+| 6–7 | Search, experiments | Not started |
 
 ## Setup (Windows)
 
@@ -128,9 +129,49 @@ Running it:
 - **2-bit outliers:** some modules break at 2 bits (`h.0.mlp.c_proj`: perplexity 381). Ranking modules
   with and without 2-bit gives different orders (Kendall τ 0.64).
 - **Pairs:** two modules' damage adds up (median ratio 0.99–1.04 per group).
-- **Whole allocations:** NEAR_SET_RESULT
-- **Far allocations:** with 6–16 modules at 2 bits, the model breaks (perplexity 96–4,700), and the real
-  damage is about 1.8× the sum of the single-module damage.
+- **Whole allocations (near uniform):** the sum of single-module damage ranks allocations well (Spearman
+  0.96) but underestimates the damage. At 4 bits it is close: uniform 4-bit measures perplexity 37.4
+  against a predicted 36.5. At 3 bits it fails: uniform 3-bit measures 166 against a predicted 56, so errors
+  stop adding up below 4 bits.
+- **Whole allocations (far from uniform):** with 6–16 modules at 2 bits, the model breaks (perplexity
+  96–4,700), and the real damage is about 1.8× the sum of the single-module damage.
+
+## Phase 5: closed-form allocation
+
+```
+.venv\Scripts\python python\allocate.py [--no-eval]   # results/phase5_allocations.json
+```
+
+For each width set (A = {2, 4, 8}, B = {2, 3, 4, 6, 8}) and budget (an average of 3, 3.5 or 4 bits), it
+builds three allocations:
+
+- **rd** (main): the rate–distortion closed form, using c_l from Phase 4.
+- **quadratic** (comparison): MAPLE's quadratic moved to bits, using s_l and b*_l.
+- **greedy** (reference): the measured Phase 4 table alone.
+
+Each closed-form solution is clamped to [2, 8], rounded to the width set, then adjusted greedily to hit the
+budget exactly. Allocations are scored on the same calibration slice as Phase 4; the test split is not
+touched. The closed forms are in one marked block at the top of `allocate.py`. They answer the guide's
+derivation tasks, so skip that block if you want to derive them first.
+
+**Results** (calibration perplexity; FP32 is 32.24; best per row in bold):
+
+| Budget | Set | Uniform | rd | quadratic | greedy |
+|---|---|---|---|---|---|
+| 3 | A | – | 502 | **365** | **365** |
+| 3 | B | 166 | **142** | 319 | 177 |
+| 3.5 | A | – | **75.6** | 88.0 | 90.4 |
+| 3.5 | B | – | **45.2** | 65.3 | 45.5 |
+| 4 | A | 37.4 | 37.4 | 37.4 | 37.4 |
+| 4 | B | 37.4 | 36.6 | 36.8 | **36.3** |
+
+- **rd beats quadratic** at every budget except set A at 3 bits.
+- **Set B beats set A** at every budget below 4 bits (at 3.5 bits: 45 vs 76).
+- **At 4 bits**, set A can only be uniform. In set B every method beats uniform, but only by 2–3%.
+- **At 3 bits**, the sum of single-module damage is far too optimistic again (B/3/rd: predicted 59,
+  measured 142).
+- **Caveat:** the same data is used to fit the inputs and to score the results. Phase 7 uses the test
+  split and LAMBADA.
 
 ## File formats
 

@@ -83,13 +83,20 @@ def save(fig, name, title):
     plt.close(fig)
 
 
+def plain_log_ticks(axis):
+    """Plain numbers at 1, 2 and 5 of every decade on a log axis, instead of powers of ten."""
+    axis.set_major_locator(LogLocator(base=10, subs=(1, 2, 5)))
+    axis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
+    axis.set_minor_formatter(NullFormatter())
+
+
 def module_bars(values, ylabel, name, title):
     """One bar per module, grouped by block, coloured by type, on a log axis (values <= 0 are not drawn)."""
     fig, (ax,) = figure(10, 3.6)
     for i in range(48):
         block, kind = divmod(i, 4)
         ax.bar(block * 5 + kind, values[i], width=0.8, color=TYPE_COLORS[kind])
-    ax.set_yscale("log"), ax.set_ylabel(ylabel)
+    ax.set_yscale("log"), ax.set_ylabel(ylabel), plain_log_ticks(ax.yaxis)
     ax.set_xticks([b * 5 + 1.5 for b in range(12)], [str(b) for b in range(12)]), ax.set_xlabel("block")
     ax.legend(handles=[plt.Rectangle((0, 0), 1, 1, color=c) for c in TYPE_COLORS], labels=KINDS, frameon=False,
               fontsize=8, labelcolor=INK_2, ncols=4, loc="lower right", bbox_to_anchor=(1.0, 1.0))
@@ -197,17 +204,14 @@ def main():
                            zorder=3, **style_kw)
                 for a in sub:
                     if a["key"].endswith("uniform"):
-                        ax.annotate("uniform", (a["predicted"], a["measured"]), xytext=(6, -3),
+                        ax.annotate("uniform", (a["predicted"], a["measured"]), xytext=(0, -14), ha="center",
                                     textcoords="offset points", fontsize=8, color=INK_2)
         pr, me = [a["predicted"] for a in everything], [a["measured"] for a in everything]
         lo = min(min(pr), min(me)) * 0.8
         hi = max(max(pr), max(me)) * 1.25
         ax.plot([lo, hi], [lo, hi], color=INK_2, linewidth=1, linestyle="--")
         ax.set_xscale("log"), ax.set_yscale("log")
-        for axis in (ax.xaxis, ax.yaxis):  # plain numbers at 1, 2 and 5 of every decade
-            axis.set_major_locator(LogLocator(base=10, subs=(1, 2, 5)))
-            axis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
-            axis.set_minor_formatter(NullFormatter())
+        plain_log_ticks(ax.xaxis), plain_log_ticks(ax.yaxis)
         ax.set_xlabel("predicted: sum of single-module increases"), ax.set_ylabel("measured loss increase, nats")
         ax.legend(frameon=False, fontsize=8, labelcolor=INK_2)
         save(fig, "phase4_additivity.png", "Do module errors add up?")

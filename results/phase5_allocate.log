@@ -1,0 +1,40 @@
+power throttling disabled: True
+sleep blocked: True
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  17%|█▋        | 25/148 [00:00<00:00, 249.01it/s]Loading weights:  34%|███▍      | 50/148 [00:00<00:01, 60.48it/s] Loading weights: 100%|██████████| 148/148 [00:00<00:00, 197.75it/s]
+A/3/rd: perplexity 502.1877 (51 s)
+A/3/quadratic: perplexity 364.8695 (56 s)
+A/3.5/rd: perplexity 75.5627 (52 s)
+A/3.5/quadratic: perplexity 87.9514 (50 s)
+A/3.5/greedy: perplexity 90.3934 (48 s)
+B/3/rd: perplexity 141.8917 (53 s)
+B/3/quadratic: perplexity 319.4252 (54 s)
+B/3/greedy: perplexity 176.6509 (46 s)
+B/3.5/rd: perplexity 45.2133 (52 s)
+B/3.5/quadratic: perplexity 65.2818 (55 s)
+B/3.5/greedy: perplexity 45.5124 (57 s)
+B/4/rd: perplexity 36.6125 (47 s)
+B/4/quadratic: perplexity 36.7932 (54 s)
+B/4/greedy: perplexity 36.2540 (49 s)
+
+allocation               avg bits  predicted ppl  measured ppl
+A/3/greedy                  3.000          94.12        364.87
+A/3/quadratic               3.000          94.12        364.87
+A/3/rd                      3.000         108.27        502.19
+A/3.5/greedy                3.500          53.62         90.39
+A/3.5/quadratic             3.500          53.77         87.95
+A/3.5/rd                    3.500          56.16         75.56
+A/4/greedy                  4.000          36.45         37.41
+A/4/quadratic               4.000          36.45         37.41
+A/4/rd                      4.000          36.45         37.41
+A/4/uniform                 4.000          36.45         37.41
+B/3/greedy                  3.000          54.28        176.65
+B/3/quadratic               3.000          84.33        319.43
+B/3/rd                      3.000          59.12        141.89
+B/3/uniform                 3.000          56.18        166.37
+B/3.5/greedy                3.500          39.76         45.51
+B/3.5/quadratic             3.500          50.40         65.28
+B/3.5/rd                    3.500          40.11         45.21
+B/4/greedy                  4.000          35.58         36.25
+B/4/quadratic               4.000          36.06         36.79
+B/4/rd                      4.000          36.30         36.61
+B/4/uniform                 4.000          36.45         37.41

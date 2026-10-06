@@ -937,7 +937,137 @@
     ],
     "spearman_all": 0.837593984962406,
     "median_measured_over_predicted": 1.7944885524965128,
+    "median_abs_error_nats": 1.1822182551856923,
     "spearman_3bit": 0.6363636363636362,
     "spearman_4bit": 0.9151515151515152
+  },
+  "allocations_near": {
+    "items": [
+      {
+        "key": "3-bit uniform",
+        "budget": 3,
+        "predicted": 0.5553410176773697,
+        "measured": 1.641071685015397
+      },
+      {
+        "key": "3-bit #0",
+        "budget": 3,
+        "predicted": 0.6548959278990103,
+        "measured": 2.064809894282097
+      },
+      {
+        "key": "3-bit #1",
+        "budget": 3,
+        "predicted": 0.5996888571819969,
+        "measured": 1.9364437576845819
+      },
+      {
+        "key": "3-bit #2",
+        "budget": 3,
+        "predicted": 0.587289797129368,
+        "measured": 1.6939444779650548
+      },
+      {
+        "key": "3-bit #3",
+        "budget": 3,
+        "predicted": 0.8224881266335369,
+        "measured": 2.4167502991498266
+      },
+      {
+        "key": "3-bit #4",
+        "budget": 3,
+        "predicted": 3.005836859709555,
+        "measured": 3.832775544793957
+      },
+      {
+        "key": "3-bit #5",
+        "budget": 3,
+        "predicted": 0.6243088051953181,
+        "measured": 1.6564753915557415
+      },
+      {
+        "key": "3-bit #6",
+        "budget": 3,
+        "predicted": 0.6644585945971802,
+        "measured": 1.807380825426804
+      },
+      {
+        "key": "3-bit #7",
+        "budget": 3,
+        "predicted": 0.6166251174165724,
+        "measured": 1.7619405766969085
+      },
+      {
+        "key": "3-bit #8",
+        "budget": 3,
+        "predicted": 1.097822474594309,
+        "measured": 2.9509509059574133
+      },
+      {
+        "key": "4-bit uniform",
+        "budget": 4,
+        "predicted": 0.12277963737119446,
+        "measured": 0.14870554307805284
+      },
+      {
+        "key": "4-bit #0",
+        "budget": 4,
+        "predicted": 1.6754908929938264,
+        "measured": 1.8474872548093075
+      },
+      {
+        "key": "4-bit #1",
+        "budget": 4,
+        "predicted": 0.14814861592190054,
+        "measured": 0.19008043201554692
+      },
+      {
+        "key": "4-bit #2",
+        "budget": 4,
+        "predicted": 2.634142516761669,
+        "measured": 4.04941047228443
+      },
+      {
+        "key": "4-bit #3",
+        "budget": 4,
+        "predicted": 0.12687100646313398,
+        "measured": 0.15416438232302498
+      },
+      {
+        "key": "4-bit #4",
+        "budget": 4,
+        "predicted": 0.13510969354024338,
+        "measured": 0.16203534451631008
+      },
+      {
+        "key": "4-bit #5",
+        "budget": 4,
+        "predicted": 0.19143008906118197,
+        "measured": 0.24544023232259526
+      },
+      {
+        "key": "4-bit #6",
+        "budget": 4,
+        "predicted": 0.5796911662857478,
+        "measured": 0.7474224280751689
+      },
+      {
+        "key": "4-bit #7",
+        "budget": 4,
+        "predicted": 0.13876880485404897,
+        "measured": 0.18199879636046612
+      },
+      {
+        "key": "4-bit #8",
+        "budget": 4,
+        "predicted": 0.21879253592539305,
+        "measured": 0.3220928001963146
+      }
+    ],
+    "spearman_all": 0.9578947368421054,
+    "median_measured_over_predicted": 1.504708201107817,
+    "median_abs_error_nats": 0.9295526357224126,
+    "spearman_3bit": 0.8545454545454544,
+    "spearman_4bit": 0.9999999999999999
   }
 }
