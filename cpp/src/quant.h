@@ -40,6 +40,11 @@ QLinear load_qlinear(const std::string& dir, int bits, int index, int d_model, i
 // y[out] = x[in] @ W_hat, using the AVX-512 kernels when the build targets AVX-512, else the reference.
 void qmatvec(const QLinear& w, const float* x, float* y);
 
+// y[T, out] = x[T, in] @ W_hat for T rows at once. Every row gets exactly the arithmetic of qmatvec, so the
+// results are bit-identical to T separate calls; batching only lets the codes come from DRAM once per chunk
+// of rows instead of once per row.
+void qmatmul(const QLinear& w, const float* x, float* y, int T);
+
 // The same product, decoding every code from the packed layout and accumulating in double. Slow; it checks
 // the packing (against Python) and the SIMD kernels (against it).
 void qmatvec_reference(const QLinear& w, const float* x, float* y);

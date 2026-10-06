@@ -137,13 +137,11 @@ double GPT2::parameter_bytes_per_token() const {
 
 void GPT2::apply(const Linear& layer, float* y, const float* x, int T) {
   if (!layer.q.bits) return linear(y, x, layer.w, layer.b, T, layer.in, layer.out);
-  // Quantized: one matrix-vector product per position, so a decode step and the same position inside a
-  // sequence stay bit-identical.
-  for (int t = 0; t < T; ++t) {
-    float* yt = y + (std::size_t)t * layer.out;
-    qmatvec(layer.q, x + (std::size_t)t * layer.in, yt);
-    if (layer.b) add(yt, layer.b, layer.out);
-  }
+  // Quantized: every row gets the arithmetic of a single matrix-vector product, so a decode step and the
+  // same position inside a sequence stay bit-identical.
+  qmatmul(layer.q, x, y, T);
+  if (layer.b)
+    for (int t = 0; t < T; ++t) add(y + (std::size_t)t * layer.out, layer.b, layer.out);
 }
 
 void GPT2::forward(const int* tokens, int T, float* logits) {

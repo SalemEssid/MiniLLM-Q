@@ -7,6 +7,7 @@
 // Usage: phase3_check [project root] [--skip-ppl] [--ppl-widths 8,4]. Writes results/phase3.json.
 #include <map>
 
+#include "bench_env.h"  // includes windows.h
 #include "quant.h"
 #include "tool_util.h"
 
@@ -55,6 +56,7 @@ int main(int argc, char** argv) try {
   }
   const fs::path data = root / "data", qref = data / "qref";
   const Family families[] = {Family::Unpack, Family::BitPlane};
+  prepare_benchmark_process();  // not timed, but throttled it runs at half speed on battery
 #ifdef __AVX512F__
   std::printf("kernels: AVX-512\n");
 #else
@@ -85,6 +87,32 @@ int main(int argc, char** argv) try {
                     index, q.in, q.out, bits, k.err_reference, k.err_kernel, verdict(k.pass));
       }
   std::printf("(a) %s\n", verdict(pass_a));
+
+  // Batched rows must equal single rows: decode steps against one forward_sequence over prompt + greedy
+  // tokens, with all five widths mixed across the blocks and an 8-bit head.
+  std::vector<int> seq = read_tokens(data / "ref_prompt.u16");
+  const auto greedy = read_tokens(data / "ref_greedy.u16");
+  seq.insert(seq.end(), greedy.begin(), greedy.end());
+  std::vector<int> mixed(48);
+  for (int i = 0; i < 48; ++i) mixed[i] = std::vector<int>{2, 3, 4, 6, 8}[i % 5];
+  bool pass_seq = true;
+  for (Family family : families) {
+    GPT2 model((data / "gpt2_124M.bin").string(), Quantization{mixed, 8, family, data.string()});
+    const int S = (int)seq.size(), V = model.config().vocab;
+    std::vector<float> seq_logits((std::size_t)S * V), step(V);
+    model.forward_sequence(seq.data(), S, seq_logits.data());
+    model.reset();
+    double worst = 0;
+    for (int i = 0; i < S; ++i) {
+      model.decode_step(seq[i], step.data());
+      for (int v = 0; v < V; ++v) worst = std::max(worst, (double)std::fabs(step[v] - seq_logits[(std::size_t)i * V + v]));
+    }
+    pass_seq = pass_seq && worst == 0;
+    std::printf("    %s  mixed widths: max |decode_step - forward_sequence| over %d positions = %.1e  %s\n",
+                family_name(family), S, worst, verdict(worst == 0));
+  }
+  std::printf("(a) batched = single rows: %s\n", verdict(pass_seq));
+  pass_a = pass_a && pass_seq;
 
   // (b) Perplexity with every block module quantized, against the Python fake-quant model.
   std::vector<PplCase> ppl_cases;

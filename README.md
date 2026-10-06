@@ -88,6 +88,11 @@ cpp\build\phase3_bench.exe [--decode]                         # gate (c); result
   against Python, and the AVX-512 kernels against it.
 - An allocation is a `Quantization`: 48 widths (0 = FP32), the head at FP32 or 8 bits, and a family. The
   FP32 weights of quantized layers are never loaded.
+- `qmatmul` runs many rows at once, for `forward_sequence`. Rows go in chunks of 64 and columns in tiles,
+  so the codes come from DRAM once per chunk, and every row gets exactly the arithmetic of a decode step:
+  `phase3_check` verifies bit-identity with all widths mixed. A 1024-token window takes 4–5.5 s, spread
+  over the quantized layers, the FP32 head (about 1.1 s) and attention (about 1.2 s), so a 32-window
+  perplexity takes about 3 minutes.
 
 **Gate result** (`results/phase3.json`, `results/phase3_bench.json`):
 
@@ -97,6 +102,33 @@ cpp\build\phase3_bench.exe [--decode]                         # gate (c); result
   families. At 4 bits it is 36.3900 against 36.3898. Each is within 7e-6; the limit is 1e-3.
 - **(c)** Compute rate and effective bandwidth are reported for every width and family. These were
   measured on battery; rerun `phase3_bench --decode` on mains power for the record.
+
+## Phase 4: sensitivity and interaction scans
+
+```
+.venv\Scripts\python python\sensitivity_scan.py [--only scan|pairs|allocations]   # results/phase4_scan.json
+.venv\Scripts\python python\analyze_scan.py                                       # results/phase4_analysis.json, figures
+```
+
+- **Calibration data:** the first 16,384 tokens of the WikiText-2 train split, as 16 windows of 1024. The
+  test split is never used here.
+- **What it evaluates:** 321 evaluations of about 43 s each, roughly 4 hours, logged to
+  `results/phase4_scan.log`:
+  - the FP32 model;
+  - each of the 48 modules alone at each of the 5 widths;
+  - 60 module pairs at 3 bits, stratified by distance and type;
+  - 20 random allocations at average budgets of 3 and 4 bits, made by moves that keep the bytes unchanged.
+- Every evaluation is saved as it finishes; stop the script whenever you need to, and a rerun resumes.
+- FP32 weights are restored from the memory-mapped `data/gpt2_124M.bin`, not kept in RAM, and the
+  script opts out of Windows power throttling.
+- `analyze_scan.py` computes:
+  - the loss increases;
+  - the rate–distortion fit of each module (its `c` and exponent α);
+  - the inputs of the quadratic objective (b* and s), and the ranking check without 2-bit;
+  - the pair ratios, and the rank correlation between the additive prediction and the measured loss of
+    whole allocations.
+
+  It also draws four figures, `results/phase4_*.png`.
 
 ## File formats
 

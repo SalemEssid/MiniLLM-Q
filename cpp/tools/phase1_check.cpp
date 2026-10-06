@@ -5,6 +5,7 @@
 //   (d) perplexity on the first 32K WikiText-2 test tokens matches Python to 0.1%
 // Usage: phase1_check [project root] [--quick]. Writes results/phase1.json.
 // --quick runs (a)-(c) only, in seconds, for use while optimizing; it writes no JSON.
+#include "bench_env.h"  // includes windows.h
 #include "tool_util.h"
 
 namespace {
@@ -33,6 +34,7 @@ int main(int argc, char** argv) try {
     else root = argv[i];
   }
   const fs::path data = root / "data";
+  prepare_benchmark_process();  // not timed, but throttled it runs at half speed on battery
 
   auto t0 = std::chrono::steady_clock::now();
   GPT2 model((data / "gpt2_124M.bin").string());

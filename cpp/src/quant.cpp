@@ -182,22 +182,33 @@ inline __m512 u_group(const uint8_t* blk, const float* xg) {
   return _mm512_add_ps(_mm512_add_ps(p0, p1), _mm512_add_ps(p2, p3));
 }
 
+// Output column c for one input row x (with its group sums xsum).
 template <int B>
-void u_matvec(const QLinear& w, const float* x, const float* xsum, float* y) {
+inline float u_column(const QLinear& w, int c, const float* x, const float* xsum) {
   const int ng = w.in / kGroup;
-  parallel_for(w.out, [&](int c0, int c1) {
-    for (int c = c0; c < c1; ++c) {
-      const uint8_t* blk = w.packed.data() + (std::size_t)c * ng * 16 * B;
-      const uint16_t* s = w.scale.data() + (std::size_t)c * ng;
-      const uint16_t* m = w.minv.data() + (std::size_t)c * ng;
-      __m512 acc = _mm512_setzero_ps();  // sum over groups of s_g * (x . q), kept in 16 lanes
-      float macc = 0.f;                  // sum over groups of m_g * (sum of x over the group)
-      for (int g = 0; g < ng; ++g, blk += 16 * B) {
-        acc = _mm512_fmadd_ps(_mm512_set1_ps(_cvtsh_ss(s[g])), u_group<B>(blk, x + g * kGroup), acc);
-        macc += _cvtsh_ss(m[g]) * xsum[g];
-      }
-      y[c] = _mm512_reduce_add_ps(acc) + macc;
-    }
+  const uint8_t* blk = w.packed.data() + (std::size_t)c * ng * 16 * B;
+  const uint16_t* s = w.scale.data() + (std::size_t)c * ng;
+  const uint16_t* m = w.minv.data() + (std::size_t)c * ng;
+  __m512 acc = _mm512_setzero_ps();  // sum over groups of s_g * (x . q), kept in 16 lanes
+  float macc = 0.f;                  // sum over groups of m_g * (sum of x over the group)
+  for (int g = 0; g < ng; ++g, blk += 16 * B) {
+    acc = _mm512_fmadd_ps(_mm512_set1_ps(_cvtsh_ss(s[g])), u_group<B>(blk, x + g * kGroup), acc);
+    macc += _cvtsh_ss(m[g]) * xsum[g];
+  }
+  return _mm512_reduce_add_ps(acc) + macc;
+}
+
+// Rows [r0, r1) of y = x @ W_hat. Threads take tiles of 32 columns; a tile's codes stay in cache while the
+// rows pass, so they come from DRAM once per chunk of rows instead of once per row.
+template <int B>
+void u_rows(const QLinear& w, const float* x, const float* xsum, float* y, int r0, int r1) {
+  constexpr int kTile = 32;
+  const int ng = w.in / kGroup;
+  parallel_for((w.out + kTile - 1) / kTile, [&](int t0, int t1) {
+    for (int tile = t0; tile < t1; ++tile)
+      for (int r = r0; r < r1; ++r)
+        for (int c = tile * kTile; c < std::min(w.out, (tile + 1) * kTile); ++c)
+          y[(std::size_t)r * w.out + c] = u_column<B>(w, c, x + (std::size_t)r * w.in, xsum + (std::size_t)r * ng);
   });
 }
 
@@ -215,39 +226,50 @@ void build_tables(const float* x, int in, float* tab) {
   }
 }
 
-// 16 output columns at a time: each lookup reads one table entry per column with a single permute.
+// Output columns 16cb..16cb+15 for one input row (its tables tab and group sums xsum): each lookup reads one
+// table entry per column with a single permute.
 template <int B>
-void p_matvec(const QLinear& w, const float* tab, const float* xsum, float* y) {
-  const int ng = w.in / kGroup, nb = (w.out + 15) / 16;
-  parallel_for(nb, [&](int b0, int b1) {
-    for (int cb = b0; cb < b1; ++cb) {
-      __m512 acc = _mm512_setzero_ps();
-      for (int g = 0; g < ng; ++g) {
-        const uint8_t* blk = w.packed.data() + ((std::size_t)cb * ng + g) * 256 * B;
-        const float* tg = tab + (std::size_t)g * (kGroup / 4) * 16;
-        __m512 lo[B], hi[B];  // per plane, sums from the low and the high nibbles
-        for (int i = 0; i < B; ++i) lo[i] = hi[i] = _mm512_setzero_ps();
-        for (int kp = 0; kp < 16; ++kp) {
-          const __m512 t0 = _mm512_loadu_ps(tg + 32 * kp), t1 = _mm512_loadu_ps(tg + 32 * kp + 16);
-          for (int i = 0; i < B; ++i) {
-            const __m512i v =
-                _mm512_cvtepu8_epi32(_mm_loadu_si128(reinterpret_cast<const __m128i*>(blk + (kp * B + i) * 16)));
-            lo[i] = _mm512_add_ps(lo[i], _mm512_permutexvar_ps(v, t0));  // permute reads the low 4 bits only
-            hi[i] = _mm512_add_ps(hi[i], _mm512_permutexvar_ps(_mm512_srli_epi32(v, 4), t1));
-          }
-        }
-        __m512 part = _mm512_add_ps(lo[B - 1], hi[B - 1]);  // sum_i 2^i plane_i, by Horner's rule
-        for (int i = B - 2; i >= 0; --i)
-          part = _mm512_fmadd_ps(part, _mm512_set1_ps(2.f), _mm512_add_ps(lo[i], hi[i]));
-        const std::size_t si = ((std::size_t)cb * ng + g) * 16;
-        const __m512 s = _mm512_cvtph_ps(_mm256_loadu_si256(reinterpret_cast<const __m256i*>(w.scale.data() + si)));
-        const __m512 m = _mm512_cvtph_ps(_mm256_loadu_si256(reinterpret_cast<const __m256i*>(w.minv.data() + si)));
-        acc = _mm512_fmadd_ps(s, part, acc);
-        acc = _mm512_fmadd_ps(m, _mm512_set1_ps(xsum[g]), acc);
+inline void p_block(const QLinear& w, int cb, const float* tab, const float* xsum, float* y) {
+  const int ng = w.in / kGroup;
+  __m512 acc = _mm512_setzero_ps();
+  for (int g = 0; g < ng; ++g) {
+    const uint8_t* blk = w.packed.data() + ((std::size_t)cb * ng + g) * 256 * B;
+    const float* tg = tab + (std::size_t)g * (kGroup / 4) * 16;
+    __m512 lo[B], hi[B];  // per plane, sums from the low and the high nibbles
+    for (int i = 0; i < B; ++i) lo[i] = hi[i] = _mm512_setzero_ps();
+    for (int kp = 0; kp < 16; ++kp) {
+      const __m512 t0 = _mm512_loadu_ps(tg + 32 * kp), t1 = _mm512_loadu_ps(tg + 32 * kp + 16);
+      for (int i = 0; i < B; ++i) {
+        const __m512i v =
+            _mm512_cvtepu8_epi32(_mm_loadu_si128(reinterpret_cast<const __m128i*>(blk + (kp * B + i) * 16)));
+        lo[i] = _mm512_add_ps(lo[i], _mm512_permutexvar_ps(v, t0));  // permute reads the low 4 bits only
+        hi[i] = _mm512_add_ps(hi[i], _mm512_permutexvar_ps(_mm512_srli_epi32(v, 4), t1));
       }
-      const int c0 = cb * 16, n = std::min(16, w.out - c0);
-      _mm512_mask_storeu_ps(y + c0, (__mmask16)((1u << n) - 1), acc);
     }
+    __m512 part = _mm512_add_ps(lo[B - 1], hi[B - 1]);  // sum_i 2^i plane_i, by Horner's rule
+    for (int i = B - 2; i >= 0; --i) part = _mm512_fmadd_ps(part, _mm512_set1_ps(2.f), _mm512_add_ps(lo[i], hi[i]));
+    const std::size_t si = ((std::size_t)cb * ng + g) * 16;
+    const __m512 s = _mm512_cvtph_ps(_mm256_loadu_si256(reinterpret_cast<const __m256i*>(w.scale.data() + si)));
+    const __m512 m = _mm512_cvtph_ps(_mm256_loadu_si256(reinterpret_cast<const __m256i*>(w.minv.data() + si)));
+    acc = _mm512_fmadd_ps(s, part, acc);
+    acc = _mm512_fmadd_ps(m, _mm512_set1_ps(xsum[g]), acc);
+  }
+  const int c0 = cb * 16, n = std::min(16, w.out - c0);
+  _mm512_mask_storeu_ps(y + c0, (__mmask16)((1u << n) - 1), acc);
+}
+
+// Rows [r0, r1) of y = x @ W_hat, given every row's tables (tab, in/4 * 16 floats per row, row r0 first).
+// Threads take tiles of two 16-column blocks, as in u_rows.
+template <int B>
+void p_rows(const QLinear& w, const float* tab, const float* xsum, float* y, int r0, int r1) {
+  constexpr int kTile = 2;
+  const int ng = w.in / kGroup, nb = (w.out + 15) / 16;
+  const std::size_t tab_row = (std::size_t)w.in / 4 * 16;
+  parallel_for((nb + kTile - 1) / kTile, [&](int t0, int t1) {
+    for (int tile = t0; tile < t1; ++tile)
+      for (int r = r0; r < r1; ++r)
+        for (int cb = tile * kTile; cb < std::min(nb, (tile + 1) * kTile); ++cb)
+          p_block<B>(w, cb, tab + (r - r0) * tab_row, xsum + (std::size_t)r * ng, y + (std::size_t)r * w.out);
   });
 }
 
@@ -318,39 +340,57 @@ void qmatvec_reference(const QLinear& w, const float* x, float* y) {
   });
 }
 
-void qmatvec(const QLinear& w, const float* x, float* y) {
+void qmatmul(const QLinear& w, const float* x, float* y, int T) {
 #ifdef __AVX512F__
-  thread_local std::vector<float> xsum, tab;
+  // Rows go in chunks of 64: a chunk's inputs, and for family P its tables (12 KB per 768 inputs and row),
+  // stay in cache while the column tiles pass.
+  constexpr int kChunk = 64;
+  // Scratch buffers of the calling thread. The lambdas below run on the workers too, so they must use these
+  // pointers: inside them, the names of thread_local variables would mean each worker's own (empty) copy.
+  thread_local std::vector<float> xsum_buf, tab_buf;
   const int ng = w.in / kGroup;
-  xsum.resize(ng);
-  for (int g = 0; g < ng; ++g) {
-    float s = 0.f;
-    for (int j = 0; j < kGroup; ++j) s += x[g * kGroup + j];
-    xsum[g] = s;
-  }
-  if (w.family == Family::Unpack) {
-    switch (w.bits) {
-      case 2: return u_matvec<2>(w, x, xsum.data(), y);
-      case 3: return u_matvec<3>(w, x, xsum.data(), y);
-      case 4: return u_matvec<4>(w, x, xsum.data(), y);
-      case 6: return u_matvec<6>(w, x, xsum.data(), y);
-      case 8: return u_matvec<8>(w, x, xsum.data(), y);
+  const std::size_t tab_row = (std::size_t)w.in / 4 * 16;
+  xsum_buf.resize((std::size_t)T * ng);
+  if (w.family == Family::BitPlane) tab_buf.resize(std::min(T, kChunk) * tab_row);
+  float* const xsum = xsum_buf.data();
+  float* const tab = tab_buf.data();
+  parallel_for(T, [&](int a, int b) {
+    for (int r = a; r < b; ++r)
+      for (int g = 0; g < ng; ++g) {
+        float s = 0.f;
+        for (int j = 0; j < kGroup; ++j) s += x[(std::size_t)r * w.in + g * kGroup + j];
+        xsum[(std::size_t)r * ng + g] = s;
+      }
+  });
+  for (int r0 = 0; r0 < T; r0 += kChunk) {
+    const int r1 = std::min(T, r0 + kChunk);
+    if (w.family == Family::Unpack) {
+      switch (w.bits) {
+        case 2: u_rows<2>(w, x, xsum, y, r0, r1); continue;
+        case 3: u_rows<3>(w, x, xsum, y, r0, r1); continue;
+        case 4: u_rows<4>(w, x, xsum, y, r0, r1); continue;
+        case 6: u_rows<6>(w, x, xsum, y, r0, r1); continue;
+        case 8: u_rows<8>(w, x, xsum, y, r0, r1); continue;
+      }
+    } else {
+      parallel_for(r1 - r0, [&](int a, int b) {
+        for (int r = r0 + a; r < r0 + b; ++r) build_tables(x + (std::size_t)r * w.in, w.in, tab + (r - r0) * tab_row);
+      });
+      switch (w.bits) {
+        case 2: p_rows<2>(w, tab, xsum, y, r0, r1); continue;
+        case 3: p_rows<3>(w, tab, xsum, y, r0, r1); continue;
+        case 4: p_rows<4>(w, tab, xsum, y, r0, r1); continue;
+        case 6: p_rows<6>(w, tab, xsum, y, r0, r1); continue;
+        case 8: p_rows<8>(w, tab, xsum, y, r0, r1); continue;
+      }
     }
-  } else {
-    tab.resize((std::size_t)w.in / 4 * 16);
-    build_tables(x, w.in, tab.data());
-    switch (w.bits) {
-      case 2: return p_matvec<2>(w, tab.data(), xsum.data(), y);
-      case 3: return p_matvec<3>(w, tab.data(), xsum.data(), y);
-      case 4: return p_matvec<4>(w, tab.data(), xsum.data(), y);
-      case 6: return p_matvec<6>(w, tab.data(), xsum.data(), y);
-      case 8: return p_matvec<8>(w, tab.data(), xsum.data(), y);
-    }
+    throw std::invalid_argument("unsupported width " + std::to_string(w.bits));
   }
-  throw std::invalid_argument("unsupported width " + std::to_string(w.bits));
 #else
-  qmatvec_reference(w, x, y);
+  for (int r = 0; r < T; ++r) qmatvec_reference(w, x + (std::size_t)r * w.in, y + (std::size_t)r * w.out);
 #endif
 }
+
+void qmatvec(const QLinear& w, const float* x, float* y) { qmatmul(w, x, y, 1); }
 
 std::size_t qbytes(const QLinear& w) { return w.packed.size() + 2 * (w.scale.size() + w.minv.size()); }

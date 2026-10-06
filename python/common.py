@@ -82,6 +82,42 @@ def load_tokenizer():
     return GPT2TokenizerFast.from_pretrained(MODEL_ID)
 
 
+def disable_power_throttling():
+    """Opt this process out of Windows 11 power throttling ("EcoQoS"), which runs processes started from an
+    editor or a script at efficient clocks, especially on battery (measured in Phase 2: about half speed).
+    Returns whether it worked; does nothing elsewhere."""
+    if platform.system() != "Windows":
+        return False
+    import ctypes
+    from ctypes import wintypes
+
+    class PowerThrottlingState(ctypes.Structure):
+        _fields_ = [("Version", wintypes.ULONG), ("ControlMask", wintypes.ULONG), ("StateMask", wintypes.ULONG)]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+    kernel32.SetProcessInformation.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+    # Version 1, control execution speed, state 0: never throttled. 4 = ProcessPowerThrottling.
+    state = PowerThrottlingState(1, 0x1, 0x0)
+    return bool(kernel32.SetProcessInformation(kernel32.GetCurrentProcess(), 4, ctypes.byref(state),
+                                               ctypes.sizeof(state)))
+
+
+def keep_awake():
+    """Stop Windows from sleeping on idle timeout while this process runs; Modern Standby counts a busy CPU as
+    idle without input, and put the laptop to sleep 23 evaluations into the first Phase 4 scan. On a Modern
+    Standby laptop the idle timeout enters standby by turning the display off, so the display must be held on:
+    ES_SYSTEM_REQUIRED alone still let it sleep for 35 minutes in the resumed scan. Closing the lid still
+    sleeps. Returns whether it worked; does nothing elsewhere."""
+    if platform.system() != "Windows":
+        return False
+    import ctypes
+
+    ES_CONTINUOUS, ES_SYSTEM_REQUIRED, ES_DISPLAY_REQUIRED = 0x80000000, 0x00000001, 0x00000002
+    return ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED
+                                                          | ES_DISPLAY_REQUIRED) != 0
+
+
 def window_nll(model, tokens, window=N_CTX, chunk=256):
     """Mean next-token NLL of each non-overlapping window of tokens (a 1-D int64 tensor whose length is a
     multiple of window). Each window predicts its tokens 1..window-1 from the tokens before them in the same
