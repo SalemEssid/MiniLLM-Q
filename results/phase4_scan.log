@@ -329,3 +329,7 @@ sleep blocked: True
 Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  10%|█         | 15/148 [00:00<00:00, 142.35it/s]Loading weights:  31%|███       | 46/148 [00:00<00:00, 228.27it/s]Loading weights:  79%|███████▉  | 117/148 [00:00<00:00, 358.78it/s]Loading weights: 100%|██████████| 148/148 [00:01<00:00, 100.92it/s]
 near allocation 3-bit uniform (0 moves): perplexity 166.3700 (57 s)
 near allocation 3-bit #0 (2 moves): perplexity 254.1570 (64 s)
+near allocation 3-bit #1 (2 moves): perplexity 223.5391 (54 s)
+near allocation 3-bit #2 (2 moves): perplexity 175.4031 (54 s)
+near allocation 3-bit #3 (4 moves): perplexity 361.3665 (49 s)
+near allocation 3-bit #4 (4 moves): perplexity 1489.0864 (48 s)
