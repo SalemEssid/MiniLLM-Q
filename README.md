@@ -89,6 +89,15 @@ cpp\build\phase3_bench.exe [--decode]                         # gate (c); result
 - An allocation is a `Quantization`: 48 widths (0 = FP32), the head at FP32 or 8 bits, and a family. The
   FP32 weights of quantized layers are never loaded.
 
+**Gate result** (`results/phase3.json`, `results/phase3_bench.json`):
+
+- **(a)** All 42 cases pass (4 block shapes plus the head, every width, both families). The reference
+  kernels are within 3e-8 of Python and the AVX-512 kernels within 7e-7; the limit is 1e-5.
+- **(b)** With every block module at 8 bits, perplexity is 31.8307 against 31.8305 in Python, for both
+  families. At 4 bits it is 36.3900 against 36.3898. Each is within 7e-6; the limit is 1e-3.
+- **(c)** Compute rate and effective bandwidth are reported for every width and family. These were
+  measured on battery; rerun `phase3_bench --decode` on mains power for the record.
+
 ## File formats
 
 All files are little-endian and have no compression.

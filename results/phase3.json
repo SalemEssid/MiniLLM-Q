@@ -1,5 +1,5 @@
 {
-  "pass": false,
+  "pass": true,
   "threads": 8,
   "a_kernels": {"pass": true, "cases": [
     {"family": "U", "module": 2, "bits": 2, "err_reference": 2.5119066e-08, "err_kernel": 5.4032229e-07, "pass": true},
@@ -45,6 +45,10 @@
     {"family": "P", "module": 45, "bits": 8, "err_reference": 2.533041e-08, "err_kernel": 5.5418141e-07, "pass": true},
     {"family": "P", "module": 48, "bits": 8, "err_reference": 2.5556168e-08, "err_kernel": 4.4010251e-07, "pass": true}
   ]},
-  "b_perplexity": {"pass": false, "cases": [
+  "b_perplexity": {"pass": true, "cases": [
+    {"family": "U", "bits": 8, "ppl": 31.830709, "ppl_python": 31.830485, "relative_difference": 7.0452939e-06, "seconds": 428.01127, "pass": true},
+    {"family": "U", "bits": 4, "ppl": 36.390046, "ppl_python": 36.389791, "relative_difference": 7.0110963e-06, "seconds": 266.04312, "pass": true},
+    {"family": "P", "bits": 8, "ppl": 31.830711, "ppl_python": 31.830485, "relative_difference": 7.0846508e-06, "seconds": 225.2147, "pass": true},
+    {"family": "P", "bits": 4, "ppl": 36.390045, "ppl_python": 36.389791, "relative_difference": 6.9665798e-06, "seconds": 208.1345, "pass": true}
   ]}
 }

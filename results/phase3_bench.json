@@ -1,0 +1,20 @@
+{
+  "cpu": "11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz",
+  "on_mains_power": false,
+  "free_ram_gb": 1.06936,
+  "power_throttling_disabled": true,
+  "threads": 8,
+  "bandwidth_gbs": 34.2274,
+  "rows": [
+    {"family": "U", "bits": 2, "compute_gweights_per_s": 37.3258, "dram_gb_per_s": 9.11702, "dram_gweights_per_s": 32.4161, "bound_gweights_per_s": 37.3258, "decode_tokens_per_s": 114.376, "decode_std": 3.44215},
+    {"family": "U", "bits": 3, "compute_gweights_per_s": 25.4997, "dram_gb_per_s": 8.9689, "dram_gweights_per_s": 22.0773, "bound_gweights_per_s": 25.4997, "decode_tokens_per_s": 96.6354, "decode_std": 5.93241},
+    {"family": "U", "bits": 4, "compute_gweights_per_s": 37.6911, "dram_gb_per_s": 16.1874, "dram_gweights_per_s": 30.4705, "bound_gweights_per_s": 37.6911, "decode_tokens_per_s": 113.091, "decode_std": 2.08491},
+    {"family": "U", "bits": 6, "compute_gweights_per_s": 26.0376, "dram_gb_per_s": 16.4949, "dram_gweights_per_s": 21.1135, "bound_gweights_per_s": 26.0376, "decode_tokens_per_s": 95.2596, "decode_std": 1.50539},
+    {"family": "U", "bits": 8, "compute_gweights_per_s": 37.7536, "dram_gb_per_s": 27.078, "dram_gweights_per_s": 26.2574, "bound_gweights_per_s": 33.1902, "decode_tokens_per_s": 107.757, "decode_std": 1.24009},
+    {"family": "P", "bits": 2, "compute_gweights_per_s": 118.127, "dram_gb_per_s": 20.7823, "dram_gweights_per_s": 73.8926, "bound_gweights_per_s": 118.127, "decode_tokens_per_s": 134.425, "decode_std": 2.23919},
+    {"family": "P", "bits": 3, "compute_gweights_per_s": 84.2203, "dram_gb_per_s": 22.6573, "dram_gweights_per_s": 55.7717, "bound_gweights_per_s": 84.2203, "decode_tokens_per_s": 132.154, "decode_std": 0.630473},
+    {"family": "P", "bits": 4, "compute_gweights_per_s": 64.3068, "dram_gb_per_s": 21.9918, "dram_gweights_per_s": 41.3963, "bound_gweights_per_s": 64.3068, "decode_tokens_per_s": 117.105, "decode_std": 2.23044},
+    {"family": "P", "bits": 6, "compute_gweights_per_s": 47.3606, "dram_gb_per_s": 25.4225, "dram_gweights_per_s": 32.5408, "bound_gweights_per_s": 43.8111, "decode_tokens_per_s": 116.085, "decode_std": 0.716139},
+    {"family": "P", "bits": 8, "compute_gweights_per_s": 36.6565, "dram_gb_per_s": 26.5957, "dram_gweights_per_s": 25.7898, "bound_gweights_per_s": 33.1902, "decode_tokens_per_s": 107.113, "decode_std": 0.496091}
+  ]
+}
