@@ -1,0 +1,24 @@
+power throttling disabled: True
+sleep blocked: True
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  10%|█         | 15/148 [00:00<00:01, 102.99it/s]Loading weights:  18%|█▊        | 26/148 [00:00<00:01, 67.97it/s] Loading weights:  23%|██▎       | 34/148 [00:02<00:09, 11.88it/s]Loading weights: 100%|██████████| 148/148 [00:02<00:00, 70.71it/s]
+B/3/s0: start perplexity 141.892
+B/3/s0 gen  1: perplexity 141.892, best offspring 145.361, 72K tokens, 273 s
+B/3/s0 gen  2: perplexity 141.892, best offspring 146.822, 72K tokens, 349 s
+B/3/s0 gen  3: perplexity 141.892, best offspring 147.513, 76K tokens, 308 s
+B/3/s0 gen  4: perplexity 141.892, best offspring 149.157, 74K tokens, 222 s
+B/3/s0 gen  5: perplexity 115.183 (improved), best offspring 115.183, 72K tokens, 257 s
+B/3/s0 gen  6: perplexity 109.259 (improved), best offspring 109.259, 74K tokens, 295 s
+B/3/s0 gen  7: perplexity 105.318 (improved), best offspring 105.318, 76K tokens, 234 s
+B/3/s0 gen  8: perplexity 101.862 (improved), best offspring 101.862, 74K tokens, 287 s
+B/3/s0 gen  9: perplexity 100.296 (improved), best offspring 100.296, 74K tokens, 298 s
+B/3/s0 gen 10: perplexity 99.716 (improved), best offspring 99.716, 74K tokens, 285 s
+B/3/s0 gen 11: perplexity 92.771 (improved), best offspring 92.771, 72K tokens, 212 s
+B/3/s0 gen 12: perplexity 92.771, best offspring 96.836, 74K tokens, 210 s
+B/3/s0 gen 13: perplexity 92.771, best offspring 98.748, 74K tokens, 206 s
+B/3/s0 gen 14: perplexity 92.771, best offspring 96.447, 74K tokens, 211 s
+B/3/s0 gen 15: perplexity 92.771, best offspring 94.323, 74K tokens, 225 s
+B/3/s0 gen 16: perplexity 92.771, best offspring 95.101, 74K tokens, 227 s
+B/3/s0 gen 17: perplexity 92.771, best offspring 93.496, 76K tokens, 242 s
+B/3/s0 gen 18: perplexity 92.771, best offspring 93.402, 74K tokens, 232 s
+B/3/s0 gen 19: perplexity 92.771, best offspring 100.172, 76K tokens, 231 s
+B/3/s0 gen 20: perplexity 92.771, best offspring 97.857, 74K tokens, 218 s
