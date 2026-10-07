@@ -1,14 +1,17 @@
 """Phase 6 analysis of results/phase6_search.json: calibration perplexity of the parent against generation for
 every run, and the spread over seeds of each width set and budget.
 
-Writes results/phase6_analysis.json and results/phase6_convergence.png.
+Writes results/phase6_analysis.json and two figures: results/phase6_convergence.png, and
+results/phase6_allocation.png, the start and the result of the best seed of each width set and budget as a
+grid of widths.
 """
 import json
 import math
 
 import numpy as np
+from matplotlib.ticker import MaxNLocator
 
-from analyze_scan import INK_2, RESULTS, SURFACE, TYPE_COLORS, plt, save, style
+from analyze_scan import DEPTH, INK, INK_2, KINDS, RESULTS, SURFACE, TYPE_COLORS, plt, save, style
 from common import write_json
 
 
@@ -46,10 +49,40 @@ def main():
             t = out["runs"][k]["trajectory"]
             ax.step(range(len(t)), t, where="post", color=TYPE_COLORS[seed], linewidth=2, label=f"seed {seed}")
         ax.set_title(f"width set {config.split('/')[0]}, {config.split('/')[1]} bits", color=INK_2, fontsize=9)
-        ax.set_xlabel("generation")
+        ax.set_xlabel("generation"), ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     axes[0].set_ylabel("calibration perplexity")
     axes[0].legend(frameon=False, fontsize=8, labelcolor=INK_2)
     save(fig, "phase6_convergence.png", "Search: perplexity of the parent by generation")
+
+    # Allocation maps: rows are module types, columns blocks, colour and number the width; outlined cells
+    # are the ones the search changed.
+    shade = {2: 0, 3: 3, 4: 6, 6: 9, 8: 11}  # steps of the one-hue ramp, light = few bits
+    fig, axes = plt.subplots(len(names), 2, figsize=(10, 1.9 * len(names) + 0.4), squeeze=False)
+    fig.patch.set_facecolor(SURFACE)
+    for row, config in zip(axes, names):
+        best = min(configs[config], key=lambda k: out["runs"][k]["perplexity"])
+        r = search["runs"][best]
+        panels = [("rate-distortion start", r["start"], out["runs"][best]["start_perplexity"]),
+                  (f"search, seed {r['seed']}", r["generations"][-1]["parent"], out["runs"][best]["perplexity"])]
+        for ax, (label, widths, ppl) in zip(row, panels):
+            ax.set_facecolor(SURFACE)
+            for i, b in enumerate(widths):
+                block, kind = divmod(i, len(KINDS))
+                changed = label.startswith("search") and b != r["start"][i]
+                ax.add_patch(plt.Rectangle((block + 0.04, kind + 0.04), 0.92, 0.92, color=DEPTH[shade[b]],
+                                           ec=INK if changed else SURFACE, lw=2 if changed else 0))
+                ax.text(block + 0.5, kind + 0.5, str(b), ha="center", va="center", fontsize=8,
+                        color=SURFACE if shade[b] >= 5 else INK)
+            ax.set_xlim(0, 12), ax.set_ylim(len(KINDS), 0)
+            ax.set_xticks([b + 0.5 for b in range(12)], [str(b) for b in range(12)])
+            ax.set_yticks([k + 0.5 for k in range(len(KINDS))], KINDS)
+            ax.tick_params(length=0, colors=INK_2, labelsize=8)
+            for side in ax.spines.values():
+                side.set_visible(False)
+            ax.set_title(f"width set {config.split('/')[0]}, {config.split('/')[1]} bits: {label}, "
+                         f"perplexity {ppl:.1f}", color=INK_2, fontsize=9, loc="left")
+        row[0].set_xlabel("block", color=INK_2, fontsize=8), row[1].set_xlabel("block", color=INK_2, fontsize=8)
+    save(fig, "phase6_allocation.png", "Bits per module: outlined cells are the ones the search changed")
 
     print(json.dumps({k: {kk: v for kk, v in r.items() if kk != "trajectory"} for k, r in out["runs"].items()},
                      indent=2))

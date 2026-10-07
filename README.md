@@ -7,6 +7,23 @@ bit-plane) and uses llama.cpp as an outside baseline. The full plan and pass gat
 
 Machine: Intel i5-1135G7 (4 cores, AVX-512), 8 GB RAM, Windows 11.
 
+```mermaid
+flowchart LR
+  P0["0 · weights, tokens,<br/>reference outputs"] --> P1["1 · FP32 engine<br/>(C++)"]
+  P1 --> P2["2 · bandwidth,<br/>fast FP32 decode"]
+  P2 --> P3["3 · quantized kernels<br/>U and P"]
+  P0 --> P4["4 · sensitivity scan<br/>(Python)"]
+  P4 --> P5["5 · closed-form<br/>allocation"]
+  P5 --> P6["6 · evolutionary<br/>search"]
+  P3 --> P7["7 · experiments:<br/>quality and speed"]
+  P5 --> P7
+  P6 --> P7
+```
+
+The C++ side (phases 1–3) makes quantized decoding fast. The Python side (phases 4–6) decides how many bits
+each of the 48 weight matrices gets. Phase 7 runs those allocations in the engine and measures quality and
+speed.
+
 ## Status
 
 | Phase | What | Result |
@@ -17,7 +34,8 @@ Machine: Intel i5-1135G7 (4 cores, AVX-512), 8 GB RAM, Windows 11.
 | 3 | Quantized kernels, two families | Done: matches Python within 7e-6 |
 | 4 | Sensitivity and interaction scans | Scans done; written discussion still to do |
 | 5 | Closed-form allocation | Allocations scored; derivations and BAQ comparison still to do |
-| 6–7 | Search, experiments | Not started |
+| 6 | Evolutionary search | First run done (3-bit perplexity 142 → 93); 11 runs to go |
+| 7 | Experiments | Not started |
 
 ## Setup (Windows)
 
@@ -86,6 +104,23 @@ cpp\build\phase3_bench.exe [--decode]                         # gate (c); result
   in llama.cpp). The kernel unpacks them, converts to float and multiplies (AVX-512).
 - **Family P (bit-plane):** each bit of the codes is stored separately. A 16-entry table of partial sums
   for every 4 inputs replaces the multiplications. One kernel serves every width.
+
+```mermaid
+flowchart LR
+  subgraph U["Family U: unpack-dequantize"]
+    direction LR
+    u1["packed codes"] --> u2["shift + mask:<br/>16 codes per load"] --> u3["convert<br/>to float"] --> u4["multiply-add<br/>with x"]
+  end
+  subgraph P["Family P: bit-plane"]
+    direction LR
+    p1["x, 4 inputs<br/>at a time"] --> p2["16-entry table<br/>of partial sums"]
+    p3["one bit plane<br/>of the codes"] --> p4["table lookup:<br/>16 columns at once"]
+    p2 --> p4 --> p5["add the planes,<br/>weighted by 2^i"]
+  end
+  u4 --> out["per group:<br/>× scale + min × Σx"]
+  p5 --> out
+```
+
 - **An allocation** is 48 widths (0 = FP32), the head at FP32 or 8 bits, and a family.
 - `qmatmul` handles 64 rows at a time with exactly the arithmetic of a decode step. A 32-window
   perplexity takes about 3 minutes.
@@ -124,17 +159,39 @@ Running it:
 
 - **Bits vs. damage:** loss falls about as 2^-2b. The fitted exponent has median 1.94 (the model assumes
   2) and ranges from 1.07 to 3.53 across modules.
+
+  ![Loss increase against width for every module](results/phase4_loss_vs_bits.png)
+
+  *One line per module, darker for later blocks. The dashed line is the 2^-2b slope.*
+
 - **Where the damage is:** at 3 bits, the top 5 of 48 modules cause 32% of it. They are mostly the
   attention input projections (`attn.c_attn`) of blocks 2–8.
+
+  ![Loss increase with one module at 3 bits](results/phase4_loss_by_module.png)
+
+  *Damage when only one module is at 3 bits (log scale). `h.10.mlp.c_proj` is missing: its damage is
+  slightly negative (noise).*
+
 - **2-bit outliers:** some modules break at 2 bits (`h.0.mlp.c_proj`: perplexity 381). Ranking modules
   with and without 2-bit gives different orders (Kendall τ 0.64).
 - **Pairs:** two modules' damage adds up (median ratio 0.99–1.04 per group).
+
+  ![Pair ratios by group](results/phase4_pairs.png)
+
+  *Damage of a pair divided by the sum of each module alone; 1 means it adds up.*
+
 - **Whole allocations (near uniform):** the sum of single-module damage ranks allocations well (Spearman
   0.96) but underestimates the damage. At 4 bits it is close: uniform 4-bit measures perplexity 37.4
   against a predicted 36.5. At 3 bits it fails: uniform 3-bit measures 166 against a predicted 56, so errors
   stop adding up below 4 bits.
 - **Whole allocations (far from uniform):** with 6–16 modules at 2 bits, the model breaks (perplexity
   96–4,700), and the real damage is about 1.8× the sum of the single-module damage.
+
+  ![Measured against predicted damage for whole allocations](results/phase4_additivity.png)
+
+  *Each point is one allocation. On the dashed line, the damage adds up exactly; above it, the real damage
+  is worse than predicted. Near-uniform 4-bit allocations (bottom left) sit close to the line, 3-bit ones far
+  above it.*
 
 ## Phase 5: closed-form allocation
 
@@ -149,9 +206,21 @@ builds three allocations:
 - **quadratic** (comparison): MAPLE's quadratic moved to bits, using s_l and b*_l.
 - **greedy** (reference): the measured Phase 4 table alone.
 
+```mermaid
+flowchart LR
+  A["Phase 4 table:<br/>c_l, s_l, b*_l"] --> B["closed form:<br/>real-valued bits"]
+  B --> C["clamp to 2–8,<br/>round to the width set"]
+  C --> D["greedy repair to<br/>the exact budget"]
+  D --> E["score on the<br/>calibration slice"]
+```
+
 Each closed-form solution is clamped to [2, 8], rounded to the width set, then adjusted greedily to hit the
 budget exactly. Allocations are scored on the same calibration slice as Phase 4; the test split is not
-touched. The closed forms are in one marked block at the top of `allocate.py`. They answer the guide's
+touched.
+
+![Rate-distortion coefficient of every module](results/phase4_rd_coefficient.png)
+
+*c_l for every module, from the Phase 4 fit: the input of the rate–distortion formula.* The closed forms are in one marked block at the top of `allocate.py`. They answer the guide's
 derivation tasks, so skip that block if you want to derive them first.
 
 **Results** (calibration perplexity; FP32 is 32.24; best per row in bold):
@@ -172,6 +241,55 @@ derivation tasks, so skip that block if you want to derive them first.
   measured 142).
 - **Caveat:** the same data is used to fit the inputs and to score the results. Phase 7 uses the test
   split and LAMBADA.
+
+## Phase 6: evolutionary search
+
+```
+.venv\Scripts\python python\search.py --set B --budget 3 --seed 0   # one run; results/phase6_search.json
+.venv\Scripts\python python\search.py --all                          # all 12 runs: sets A, B × 3, 3.5 bits × 3 seeds
+.venv\Scripts\python python\analyze_search.py                        # results/phase6_analysis.json + 2 figures
+```
+
+The search follows EvoPress (Sieberling et al., 2025). It starts from the Phase 5 rate–distortion
+allocation, and each generation does this:
+
+```mermaid
+flowchart TD
+  S["start: rate-distortion allocation"] --> P["parent"]
+  P --> K["16 offspring,<br/>1–3 size-neutral moves each"]
+  K --> A["score on 2K tokens,<br/>keep the best 4"]
+  A --> B["score on 8K tokens,<br/>keep the best 2"]
+  B --> C["score on 16K tokens,<br/>keep the best 1"]
+  C --> D{"better than<br/>the parent?"}
+  D -- yes --> R["it becomes the parent"] --> P
+  D -- no --> P
+```
+
+- **Moves keep the bytes equal:** one module goes one width step up or down, and another module of the
+  same type (same size) goes the same number of bits the other way.
+- **Fitness:** cross-entropy on the calibration slice. EvoPress uses the KL divergence to the FP32 model
+  instead. The test split is never used.
+- Each window's score is cached by allocation, so repeated candidates cost nothing. It saves after every
+  generation, and a rerun resumes exactly.
+- One generation takes about 4 minutes, so a 20-generation run takes about 1.5 hours.
+
+**Results so far** (1 of 12 runs: set B, 3 bits, seed 0):
+
+- **Calibration perplexity went from 141.9 to 92.8** (−35%). Uniform 3-bit is 166.
+- It improved in generations 5–11, then found nothing better for 9 generations, so 20 generations is
+  enough.
+
+  ![Parent perplexity by generation](results/phase6_convergence.png)
+
+- **It changed 10 of 48 modules:** more bits for early blocks, and fewer (down to 2) for blocks 10–11.
+  The rate–distortion formula misses this trade because it assumes each module's damage is independent.
+
+  ![Allocation before and after the search](results/phase6_allocation.png)
+
+  *Bits per module, before (left) and after (right) the search. Outlined cells changed.*
+
+- **Caveat:** the search is scored on the same calibration tokens it optimizes. Phase 7 checks the result
+  on the test split.
 
 ## File formats
 
